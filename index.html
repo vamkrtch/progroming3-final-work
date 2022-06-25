@@ -1,0 +1,186 @@
+<html>
+  <head>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/p5.js"></script>
+    <!-- <script src="./st.js"></script> -->
+    <style>
+      #legend {
+        position: absolute;
+        bottom: 8px;
+        right: 0;
+        left: 0;
+        width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .legend-color {
+        width: 30px;
+        height: 30px;
+      }
+
+      td {
+        border: 1px solid black;
+        font-size: 14px;
+        padding-left: 5px;
+      }
+
+      .buttons-wrapper {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .buttons-wrapper button {
+        padding: 8px 14px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        text-transform: capitalize;
+        font-weight: medium;
+        font-size: 18px;
+        background-color: #4f46e5;
+        color: white;
+        transition-duration: 150ms;
+      }
+
+      button:hover {
+        background-color: #4338ca;
+      }
+
+      canvas {
+        display: block;
+        margin: 0 auto;
+        position: absolute;
+        top: 55px;
+        left: 0;
+        right: 0;
+      }
+      .main{
+        width: 550px;
+        height: 550px;
+        border-radius: 8px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+      }
+      body{
+        background-color: lightsteelblue;
+      }
+      .mainbody{
+        padding: 10px;
+         margin: 20px;
+    background: #e1e4e2;
+    width: 98%;
+    height: 98%;
+  
+    box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+   
+      }
+
+      #weather_td{
+        font-size: 20px;
+        padding: 5px;
+      }
+      
+    </style>
+  </head>
+
+  <body>
+     <div class="mainbody"> 
+       <div class="main" id="body"></div>
+     <div class="buttons-wrapper">
+       <button onclick="startgame()">start me</button>
+       <button onclick="rmrf()">rm -rf *</button>
+       <button onClick="window.location.reload();">Refresh Page</button>
+       <button onclick="AddGrassEater()">Add grass eater</button>
+       <button onclick="addgishatich()">Add addgishatich</button>
+     <table >
+ <tr>
+  <td >weather forcast</td>
+  <td id="weather_td"></tdid></td>
+ </tr>
+ </table>
+     <table id="legend">
+       <tr>
+         <td class="legend-color">Գույն</td>
+         <td>Անվանում</td>
+         <td>Շարժվում է</td>
+         <td>Ուտում է</td>
+         <td>Բազմանում է</td>
+         <td>Սատկում է</td>
+       </tr>
+ 
+       <tr>
+         <td class="legend-color" style="background-color: gray"></td>
+         <td>Դատարկ վանդակներ</td>
+         <td></td>
+         <td></td>
+         <td></td>
+         <td></td>
+       </tr>
+       <tr>
+         <td class="legend-color" style="background-color: green"></td>
+         <td>Խոտ</td>
+         <td></td>
+         <td></td>
+         <td>Մոտակա 8 վանդակներում, 8 տակտը մեկ</td>
+         <td></td>
+       </tr>
+       <tr>
+         <td class="legend-color" style="background-color: yellow"></td>
+         <td>Խոտակեր</td>
+         <td>Մոտակա 8 վանդակներում, էներգիան քչանում է 1֊ով</td>
+         <td>
+           Խոտերին, մոտակա 8 վանդակներում, շարժվելիս էներգիան ավելանում է 1֊ով
+         </td>
+         <td>Բազմանում է մոտակա տարածքներում, երբ էներգիան 14֊ից ավել է</td>
+         <td>Սատկում է, երբ էներգիան փոքր է 0֊ից</td>
+       </tr>
+       <tr>
+         <td class="legend-color" style="background-color: red"></td>
+         <td>Գիշատիչ</td>
+         <td>Մոտակա 8 վանդակներում, էներգիան քչանում է 1֊ով</td>
+         <td>
+           Խոտակերներին, մոտակա 8 վանդակներում, շարժվելիս էներգիան ավելանում է
+           2֊ով
+         </td>
+         <td>Բազմանում է մոտակա տարածքներում, երբ էներգիան 14֊ից ավել է</td>
+         <td>Սատկում է, երբ էներգիան փոքր է 0֊ից</td>
+       </tr>
+       <tr>
+         <td class="legend-color" style="background-color: blue"></td>
+         <td>որսորդ</td>
+         <td>
+           խաչաձև 12 դատարկ վանդակներում և խոտերի վրայով, էներգիան քչանում է 1֊ով
+         </td>
+         <td>
+           գիշատիչին, խաչաձև 12 վանդակներում, շարժվելիս էներգիան ավելանում է 2֊ով
+         </td>
+         <td>Բազմանում խաչաձև 12 վանդակներում, երբ էներգիան 10֊ից ավել է</td>
+         <td>Սատկում է, երբ էներգիան փոքր է 0֊ից</td>
+       </tr>
+       <tr>
+         <td class="legend-color" style="background-color: black"></td>
+         <td>անտառապահ</td>
+         <td>վերև,ներքև և կողմեր 12 վանդակներում, էներգիան քչանում է 1֊ով</td>
+         <td>
+           գիշատիչին և որսորդին , վերև,ներքև և կողմեր 12 վանդակներում, շարժվելիս
+           էներգիան ավելանում է 2֊ով
+         </td>
+         <td>
+           Բազմանում է վերև,ներքև և կողմեր12 վանդակներում, երբ էներգիան 14֊ից
+           ավել է
+         </td>
+         <td>Սատկում է, երբ էներգիան փոքր է 0֊ից</td>
+       </tr>
+     </table>
+     <script src="script.js"></script>
+   </div></div>
+  </body>
+</html>
+
